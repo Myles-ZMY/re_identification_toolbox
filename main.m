@@ -4,3 +4,7 @@
 % Params are stored in a struct (pars) which specifies supported datasets.
 pars.dataset = 'ViPER';
 pars.normalize = 1;
+
+% Initialize parallel pool
+parpool;
+

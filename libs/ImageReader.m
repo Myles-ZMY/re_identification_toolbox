@@ -1,5 +1,6 @@
 function [probe_dataset, gallery_dataset] = ImageReader(dataset_dir, ...
-                                            image_extension, pars)
+                                            image_extension, ...
+                                            pars)
 %IMAGEREADER Organize the images of a person re-identification dataset in
 %two tensors with a specific structure.
 %   DATASET = IMAGEREADER(DATASET_DIR, IMAGE_EXTENSION, PARS) reads the
