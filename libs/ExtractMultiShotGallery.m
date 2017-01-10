@@ -1,4 +1,4 @@
-function [ output_args ] = ExtractMultiShotGallery( input_args )
+function [ output_args ] = extractMultiShotGallery( input_args )
 %EXTRACTMULTISHOTGALLERY Summary of this function goes here
 %   Detailed explanation goes here
 
