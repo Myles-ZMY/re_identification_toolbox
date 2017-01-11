@@ -10,6 +10,10 @@ function [s_p_set, s_g_set] = imageSegmentation(p_set, ...
 %   MODE can take the following values:
 %   - SIX_STRIPES: splits each image in six horizontal stripes.
 %   - DENSE: splits each image in 8 x 8 patches.
+
+
+% TODO: this should be modified to extract several color space, and store
+% them in mat files
 if nargin~=3
     error('The number of input arguments is not correct.');
 elseif size(p_set,4)~=size(g_set,4)

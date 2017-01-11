@@ -23,9 +23,5 @@ end
 setup_paths
 
 % Read images and store them in two tensors, i.e. p_set and g_set.
-tic
 [p_set, g_set, pars.image_no] = imageReader(dset_dir, '*.bmp', pars);
-toc
-tic
 [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, pars);
-toc
