@@ -10,7 +10,7 @@ function [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, mode)
 %   - DENSE: splits each image in 8 x 8 patches.
 if nargin~=3
     error('The number of input arguments is not correct.');
-elseif size(p_set,4)~size(g_set,4)
+elseif size(p_set,4)~=size(g_set,4)
     error('Gallery set and probe set contain a different number of images.');
 elseif ~isstring(mode)
     error('Mode must be a string.')
