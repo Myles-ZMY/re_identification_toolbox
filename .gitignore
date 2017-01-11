@@ -17,3 +17,9 @@ slprj/
 
 # Session info
 octave-workspace
+
+# Useless huge .mat files
+*.mat
+
+# Datasets folder. Just download it on official sites!
+datasets/

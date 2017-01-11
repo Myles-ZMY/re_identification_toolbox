@@ -42,8 +42,8 @@ p_set = zeros(pars.height,pars.width,pars.channels,dset_size);
 g_set = zeros(pars.height,pars.width,pars.channels,dset_size);
 % Read images and store them in tensors.
 parfor i = 1:dset_size
-    p_set(:,:,:,i) = imread(probe_images(i));
-    g_set(:,:,:,i) = imread(gallery_images(i));
+    p_set(:,:,:,i) = imread(fullfile(probe_images(i).folder,probe_images(i).name));
+    g_set(:,:,:,i) = imread(fullfile(gallery_images(i).folder,gallery_images(i).name));
 end
 
 end
