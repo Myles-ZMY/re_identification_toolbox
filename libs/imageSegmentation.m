@@ -1,4 +1,6 @@
-function [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, mode)
+function [s_p_set, s_g_set] = imageSegmentation(p_set, ...
+                                                g_set, ...
+                                                pars)
 %IMAGESEGMENTATION Segments images in both a probe and a gallery set
 %according to the specified mode.
 %   [S_P_SET, S_G_SET] = IMAGESEGMENTATION(P_SET, G_SET, MODE) accepts as
@@ -12,33 +14,31 @@ if nargin~=3
     error('The number of input arguments is not correct.');
 elseif size(p_set,4)~=size(g_set,4)
     error('Gallery set and probe set contain a different number of images.');
-elseif ~isstring(mode)
-    error('Mode must be a string.')
+elseif ~isstruct(pars)
+    error('pars struct.')
+    %TODO CHECK IF PARS HAS V_PATCHES, H_PATCHES
 end
 
-img_no = size(p_set,4);
+% TODO: DOCS + REFACTORING
+% Step vectors
+h_vec = 0:(floor(pars.height/pars.h_patches)):pars.height;
+h_vec_a = h_vec + 1;
+v_vec = 0:(floor(pars.width/pars.v_patches)):pars.width;
+v_vec_a = v_vec + 1;
 
-if(strcmp(mode,'six_stripes'))
-    s_p_set = zeros(size(p_set,1)/6,size(p_set,2)/6,6,size(p_set,3),size(p_set,4));
-    s_g_set = s_p_set;
-    parfor i = 1:img_no
-        p_img = p_set(:,:,:,i);
-        g_img = g_set(:,:,:,i);
-        if ~(size(p_img,1)==128 && size(p_img,2)==48)
-            p_img = imresize(p_img, [128, 48]);
-        end
-        if ~(size(g_img,1)==128 && size(g_img,2)==48)
-            g_img = imresize(g_img, [128, 48]);
-        end
-        s_p_set(i) = reshape(p_img,[size(p_img,1)/6, size(p_img,2)/6, 6, ...
-            size(p_img,3), size(p_img,4)]);
-        s_g_set(i) = reshape(g_img,[size(g_img,1)/6, size(g_img,2)/6, 6, ...
-            size(g_img,3), size(g_img,4)]);
+s_p_set = [];
+s_g_set = [];
+
+% consider h stripe
+for i = 1:(length(h_vec)-1)
+    p_stripe = p_set(h_vec_a(i):h_vec(i+1),:,:,:);
+    g_stripe = g_set(h_vec_a(i):h_vec(i+1),:,:,:);
+    for j = 1:length(v_vec)-1
+        p_col = p_stripe(:,v_vec_a(j):v_vec(j+1),:,:);
+        g_col = g_stripe(:,v_vec_a(j):v_vec(j+1),:,:);
+        s_p_set = cat(5,s_p_set,p_col);
+        s_g_set = cat(5,s_g_set,g_col);
     end
-elseif(strcmp(mode,'dense'))
-%    s_p_set = zeros(size(p_set,1)/8,size(p_set,2)/8, 
-else
-    error('Unrecognized segmentation mode.');    
 end
 
 end

@@ -1,4 +1,4 @@
-function [p_set, g_set, dset_size] = imageReader(dset_dir, img_ext, pars)
+function [p_set, g_set, image_no] = imageReader(dset_dir, img_ext, pars)
 %IMAGEREADER Organizes the images of a person re-identification dataset in
 %two tensors with a specific structure.
 % RIVEDI DOCS
@@ -33,15 +33,15 @@ gallery_images = dir(fullfile(dset_dir, 'cam_b', img_ext));
 % Check if the probe set and the gallery set have the same number of
 % images.
 if length(probe_images)==length(gallery_images)
-    dset_size = length(probe_images);
+    image_no = length(probe_images);
 else
     error('The probe set and the gallery set must have the same number of images');
 end
 % Create tensors.
-p_set = zeros(pars.height,pars.width,pars.channels,dset_size);
-g_set = zeros(pars.height,pars.width,pars.channels,dset_size);
+p_set = zeros(pars.height,pars.width,pars.channels,image_no);
+g_set = zeros(pars.height,pars.width,pars.channels,image_no);
 % Read images and store them in tensors.
-parfor i = 1:dset_size
+parfor i = 1:image_no
     p_set(:,:,:,i) = imread(fullfile(probe_images(i).folder,probe_images(i).name));
     g_set(:,:,:,i) = imread(fullfile(gallery_images(i).folder,gallery_images(i).name));
 end
