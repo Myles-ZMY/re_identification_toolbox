@@ -1,3 +1,4 @@
+% TODO: INITIAL SETUP (add folders if they do not exist)
 % Dataset main folder; it stores all the datasets which should be
 % evaluated.
 dset_main_dir = fullfile(pwd, 'datasets');
@@ -8,3 +9,4 @@ dset_dir = fullfile(dset_main_dir, pars.dataset);
 % specifying it.
 lib_dir = fullfile(pwd, 'libs');
 addpath(lib_dir);
+% Res folder.

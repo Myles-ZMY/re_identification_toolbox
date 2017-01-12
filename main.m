@@ -13,6 +13,8 @@ pars.gpu            = 0; % Use GPU
 pars.multi_shot     = 0; % indicates if dataset is multishot
 pars.h_patches      = 6;
 pars.v_patches      = 2;
+pars.nbins          = 16;
+pars.nchannels      = 3;
 
 % Initialize parallel pool
 if pars.parallel
@@ -25,3 +27,5 @@ setup_paths
 % Read images and store them in two tensors, i.e. p_set and g_set.
 [p_set, g_set, pars.image_no] = imageReader(dset_dir, '*.bmp', pars);
 [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, pars);
+
+[exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
