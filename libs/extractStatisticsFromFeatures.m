@@ -1,22 +1,21 @@
-function feature_stats = extractStatisticsFromFeatures(feature_set)
+function varargout = extractStatisticsFromFeatures(varargin)
 %EXTRACTSTATISTICSFROMFEATURES Statistical characterization of feature
 %distribution.
+%   TODO: REFACTORING DOCS
 %   FEATURE_STATS = EXTRACTSTATISTICSFROMFEATURES(FEATURE_SET) extracts
 %   meaningful statistical parameters (i.e. mean, median, variance and 
 %   interquartile range) froma given FEATURE_SET, which is assumed to be a
 %   column vector. No assumptions are made on the shape of the
 %   distribution, which can be both non-parametric and parametric.
-% TODO: CHECK INPUT
-% TODO: HYPOTHESIS ON THE DISTRIBUTION (i.e. normalized, a classical
-% histogram should not work)
 
-% NORMALIZATION
-% if (sum(feature_set)!=1) normalize
+varargout = cell(length(varargin));
 
-feature_stats = [mean(feature_set), ...
-    median(feature_set), ...
-    std(feature_set), ...
-    iqr(feature_set)];
-
+for i = 1:length(varargin)
+    varargout{i} = cat(1, ...
+        mean(varargin{i}), ...
+        median(varargin{i}), ...
+        std(varargin{i}), ...
+        iqr(varargin{i}));
 end
 
+end

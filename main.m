@@ -29,3 +29,4 @@ setup_paths
 [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, pars);
 
 [exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
+[stat1,stat2] = extractStatisticsFromFeatures(exit1,exit2);
