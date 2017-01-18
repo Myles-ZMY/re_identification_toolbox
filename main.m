@@ -15,14 +15,15 @@ pars.h_patches      = 6;
 pars.v_patches      = 2;
 pars.nbins          = 16;
 pars.nchannels      = 3;
+pars.deep_learning  = 0; % Indicates wether libs for DL should be downloaded
 
 % Initialize parallel pool
 if pars.parallel
     gcp;
 end
 
-% Setup paths
-setup_paths
+%Setup paths
+setup
 
 % Read images and store them in two tensors, i.e. p_set and g_set.
 [p_set, g_set, pars.image_no] = imageReader(dset_dir, '*.bmp', pars);

@@ -10,3 +10,10 @@ dset_dir = fullfile(dset_main_dir, pars.dataset);
 lib_dir = fullfile(pwd, 'libs');
 addpath(lib_dir);
 % Res folder.
+
+if(pars.deep_learning)
+    unzip('https://github.com/vlfeat/matconvnet/archive/master.zip', lib_dir);
+    % TODO: PARAMETRIZE
+    vl_compilenn('enableGpu',1,'verbose',verbose);
+    vl_setupnn;
+end
