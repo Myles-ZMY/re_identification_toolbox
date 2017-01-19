@@ -19,7 +19,7 @@ pars.deep_learning  = 0; % Indicates wether libs for DL should be downloaded
 
 % Initialize parallel pool
 if pars.parallel
-    gcp;
+    parallel_pool = gcp;
 end
 
 %Setup paths
@@ -31,3 +31,6 @@ setup
 
 [exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
 [stat1,stat2] = extractStatisticsFromFeatures(exit1,exit2);
+
+% pseudo code: feat_vec = squeeze(stat1(:,i,:,i))';
+% featureClustering(feat_vec)
