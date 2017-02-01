@@ -1,4 +1,5 @@
-function [p_set, g_set, image_no] = imageReader(dset_dir, img_ext, pars)
+function [p_set, g_set, image_no] = imageReader(dataset_dir, ...
+    img_ext, height, width, channels, varargin)
 %IMAGEREADER Organizes the images of a person re-identification dataset in
 %two tensors with a specific structure.
 % RIVEDI DOCS
@@ -11,25 +12,28 @@ function [p_set, g_set, image_no] = imageReader(dset_dir, img_ext, pars)
 %   cardinality of both the probe and the gallery set. The values of H, W 
 %   and K are determined by the PARS structure.
 
-% Check inputs.
-if nargin~=3
-    error('The number of input arguments is not correct.');
-elseif ~isstruct(pars)
-    error('The parameters must be a structure.')
-elseif ~((isfield(pars,'height'))...
-        &&(isfield(pars,'width'))...
-        &&(isfield(pars,'channels')))
-    error('Check pars structure')
-elseif ~exist(dset_dir,'dir')
-    error('Dataset Dir does not exist, or the path is not correct')
-end
+% TODO: INPUTPARSER
+
+p = inputParser;
+
+addRequired(p, 'DatasetDir', @ischar);
+addRequired(p, 'ImgExt', @ischar);
+addRequired(p, 'Height', @isscalar);
+addRequired(p, 'Width', @isscalar);
+addRequired(p, 'Channels', @isscalar);
+addParameter(p, 'MultiShot', false, @islogical);
+
+parse(p, dataset_dir, img_ext, height, width, channels, varargin{:});
+
 % Check if the dataset is multi-shot.
-if(pars.multi_shot)
+if(p.Results.MultiShot)
     ExtractMultiShotGallery;
 end
 % Create structures for images.
-probe_images = dir(fullfile(dset_dir, 'cam_a', img_ext));
-gallery_images = dir(fullfile(dset_dir, 'cam_b', img_ext));
+probe_images = dir(fullfile(p.Results.DatasetDir, 'cam_a', ...
+    p.Results.ImgExt));
+gallery_images = dir(fullfile(p.Results.DatasetDir, 'cam_b', ...
+    p.Results.ImgExt));
 % Check if the probe set and the gallery set have the same number of
 % images.
 if length(probe_images)==length(gallery_images)
@@ -38,12 +42,12 @@ else
     error('The probe set and the gallery set must have the same number of images');
 end
 % Create tensors.
-p_set = zeros(pars.height,pars.width,pars.channels,image_no);
-g_set = zeros(pars.height,pars.width,pars.channels,image_no);
+p_set = zeros(p.Results.Height,p.Results.Width,p.Results.Channels,image_no);
+g_set = zeros(p.Results.Height,p.Results.Width,p.Results.Channels,image_no);
 % Read images and store them in tensors.
 parfor i = 1:image_no
-    p_set(:,:,:,i) = imread(fullfile(probe_images(i).folder,probe_images(i).name));
-    g_set(:,:,:,i) = imread(fullfile(gallery_images(i).folder,gallery_images(i).name));
+    [p_set(:,:,:,i),~,~,~,~] = imAugmentedRead(fullfile(probe_images(i).folder,probe_images(i).name));
+    [g_set(:,:,:,i),~,~,~,~] = imAugmentedRead(fullfile(gallery_images(i).folder,gallery_images(i).name));
 end
 
 end

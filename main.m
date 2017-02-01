@@ -26,7 +26,7 @@ end
 setup
 
 % Read images and store them in two tensors, i.e. p_set and g_set.
-[p_set, g_set, pars.image_no] = imageReader(dset_dir, '*.bmp', pars);
+[p_set, g_set, pars.image_no] = imageReader(dset_dir, '*.bmp', pars.height, pars.width, pars.channels);
 [s_p_set, s_g_set] = imageSegmentation(p_set, g_set, pars);
 
 [exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
