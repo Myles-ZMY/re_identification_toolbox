@@ -1,18 +1,31 @@
-% TODO: INITIAL SETUP (add folders if they do not exist)
-% Dataset main folder; it stores all the datasets which should be
-% evaluated.
-dset_main_dir = fullfile(pwd, 'datasets');
-% Dataset folder used in the experiment, according to the parameters
-% structure.
-dset_dir = fullfile(dset_main_dir, pars.dataset);
-% Library folder. It is added to the path to recall libraries without
-% specifying it.
-lib_dir = fullfile(pwd, 'libs');
-addpath(lib_dir);
-% Res folder.
+% Main dataset folder. It stores all the normalized datasets.
+mainDatasetDir = fullfile(pwd, 'datasets');
+if ~exist(mainDatasetDir, 'dir')
+    mkdir(mainDatasetDir)
+end
+
+% Current dataset folder. If it does not exist, call normalizeDataset.
+currentDatasetDir = fullfile(mainDatasetDir, pars.dataset);
+if ~exist(currentDatasetDir, 'dir')
+    normalizeDataset;
+end
+
+% Library folder. 
+libsDir = fullfile(pwd, 'libs');
+% Check if library folder is already on path. If not, add it.
+pathCell = regexp(path, pathsep, 'split');
+if ((ispc && ~any(strcmpi(libsDir, pathCell))) || ~any(strcmp(libsDir, pathCell)))
+    addpath(genpath(libsDir));
+end
+
+% Results folder.
+resDir = fullfile(pwd, 'res');
+if ~exist(resDir,'dir')
+    mkdir(resDir)
+end
 
 if(pars.deep_learning)
-    unzip('https://github.com/vlfeat/matconvnet/archive/master.zip', lib_dir);
+    unzip('https://github.com/vlfeat/matconvnet/archive/master.zip', libsDir);
     % TODO: PARAMETRIZE
     vl_compilenn('enableGpu',1,'verbose',verbose);
     vl_setupnn;

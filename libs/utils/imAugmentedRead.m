@@ -1,7 +1,7 @@
-function [i, ni, fi, ti, ri]  = imAugmentedRead(img, varargin)
+function [i, ni, fi, ti, ri, lbl]  = imAugmentedRead(img, varargin)
 %IMAUGMENTEDREAD Read an image, and augment it using label-preserving 
 %transforms.
-%   [I, NI, FI, TI, RI] = IMAUGMENTEDREAD(IMG, VARARGIN) reads the image
+%   [I, NI, FI, TI, RI, LBL] = IMAUGMENTEDREAD(IMG, VARARGIN) reads the image
 %   IMG and returns a matrix I, which represents the original image, a
 %   noisy version of the original image (RI), a horizontally-flipped
 %   version (FI), a transformed version (TI) and a rotated version (RI).
