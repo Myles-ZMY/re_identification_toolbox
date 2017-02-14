@@ -38,7 +38,7 @@ else
     load(imgTensorMat)
 end
 
-[s_p_set, s_g_set] = imageSegmentation(probeSet.originalImages, gallerySet.originalImages, pars);
+[s_p_set, s_g_set] = imageSegmentation(probeSet, gallerySet);%, pars);
 
 [exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
 [stat1,stat2] = extractStatisticsFromFeatures(exit1,exit2);

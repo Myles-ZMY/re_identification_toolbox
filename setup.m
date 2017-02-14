@@ -6,9 +6,9 @@ end
 
 % Current dataset folder. If it does not exist, call normalizeDataset.
 currentDatasetDir = fullfile(mainDatasetDir, pars.dataset);
-if ~exist(currentDatasetDir, 'dir')
-    normalizeDataset;
-end
+%if ~exist(currentDatasetDir, 'dir')
+%    normalizeDataset;
+%end
 
 % Library folder. 
 libsDir = fullfile(pwd, 'libs');
@@ -24,9 +24,20 @@ if ~exist(resDir,'dir')
     mkdir(resDir)
 end
 
+% TODO: parametrize
 if(pars.deep_learning)
     unzip('https://github.com/vlfeat/matconvnet/archive/master.zip', libsDir);
-    % TODO: PARAMETRIZE
-    vl_compilenn('enableGpu',1,'verbose',verbose);
+    addpath(fullfile(libsDir, 'matconvnet-master', 'matlab'));
+    compileGpu = false;
+    if((gpuDeviceCount > 0) && pars.gpu)
+        g = gpuDevice;
+        if g.computeCapability > 3
+            compileGpu = true;
+        else
+            warning('GPU is not enough');
+        end
+    end
+            
+    vl_compilenn('enableGpu',compileGpu);
     vl_setupnn;
 end
