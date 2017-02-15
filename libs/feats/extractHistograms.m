@@ -9,24 +9,25 @@ function hist_ten = extractHistograms(dataset,varargin)
 %   splitted.
 p = inputParser;
 
-addRequired(p,'dataset',@(x) assert(ismatrix(x) && lenght(size(x)) == 4, ...
-    'Dataset must a four-dimensional tensor'));
-addParameter(p,'nBins',10,@(x) assert(isinteger(x) && (x > 0) && ...
-    (x < 257), 'The number of bins must be an integer between 1 and 257.'));
-addParameter(p,'nChannels',3,@(x) assert(isinteger(x) && (x > 1) && ...
+addRequired(p,'dataset',@(x) assert(isnumeric(x), ...
+    'Dataset must a tensor'));
+addParameter(p, 'NumBins', 10, @(x) assert(isscalar(x) && (x > 0) && ...
+    (x < 257), 'The number of bins must be an integer between 1 and 256.'));
+addParameter(p,'NumChannels', 3, @(x) assert(isscalar(x) && (x > 1) && ...
     (x < 4), 'The number of channels must be an integer between 1 and 3.'));
 
 parse(p, dataset, varargin{:});
 
 % Preallocate hist_ten tensor.
-hist_ten = zeros(nbins, nchannels, size(dataset,4), size(dataset,5));
+hist_ten = zeros(p.Results.NumBins, ...
+    p.Results.NumChannels, size(dataset,4), size(dataset,5));
 % Extract the histogram of the specified channels with the specific number
 % of bins.
 % TODO: PARFOR/GPU
 for i = 1:size(dataset,4)
     for j = 1:size(dataset,5)
-        for k = 1:nchannels
-            hist_ten(:,k,i,j) = histcounts(dataset(:,:,k,i,j),nbins,'Normalization','probability');
+        for k = 1:p.Results.NumChannels
+            hist_ten(:,k,i,j) = histcounts(dataset(:,:,k,i,j),p.Results.NumBins,'Normalization','probability');
         end
     end
 end

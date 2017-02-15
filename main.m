@@ -40,7 +40,7 @@ end
 
 [s_p_set, s_g_set] = imageSegmentation(probeSet, gallerySet);%, pars);
 
-[exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, pars.nbins, pars.nchannels);
+[exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, 16, 3);
 [stat1,stat2] = extractStatisticsFromFeatures(exit1,exit2);
 
 % pseudo code: feat_vec = squeeze(stat1(:,i,:,i))';

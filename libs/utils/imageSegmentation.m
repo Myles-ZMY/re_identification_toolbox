@@ -3,13 +3,14 @@ function [sProbeSet, sGallerySet] = imageSegmentation(probeSet, gallerySet, vara
 %IMAGESEGMENTATION Segments images in both a probe and a gallery set
 %according to the specified mode.
 
+% TODO: imageSegmentation should be called only on one tipe of image. Write
+% a helper method, instead.
 p = inputParser;
 expectedFields = {'originalImages','noisyImages','flipImages', ...
     'transfImages','rotatedImages'}';
 setValidationFcn = @(x) assert(isstruct(x) && ...
     isequal(fieldnames(x,'-full'),expectedFields), ...
-    'Structure fields are not vaid. Check documentation.');
-%integerValidationFcn = @(x,msg) assert(isinteger(x), msg);
+    'Structure fields are not valid. Check documentation.');
 addRequired(p, 'probeSet', setValidationFcn);
 addRequired(p, 'gallerySet', setValidationFcn);
 addParameter(p, 'Height', 128, @(x) assert(isinteger(x), ...
@@ -26,16 +27,8 @@ parse(p, probeSet, gallerySet, varargin{:});
 % TODO: this should be modified to extract several color space, and store
 % them in mat files
 
-% TODO: DOCS + REFACTORING
-% Step vectors
-h_vec = 1:(floor(p.Results.Height/p.Results.HorizontalPatches)): ...
-    p.Results.Height;
-h_vec_a = h_vec + 1;
-v_vec = 1:(floor(p.Results.Width/p.Results.VerticalPatches)): ...
-    p.Results.VerticalPatches;
-v_vec_a = v_vec + 1;
-
-[h_vec,v_vec] = splitMatrix(p.Results.Height, ...
+% Compute split vectors.
+[hSplitVector,vSplitVector] = splitMatrix(p.Results.Height, ...
     p.Results.Width, ...
     p.Results.HorizontalPatches, ...
     p.Results.VerticalPatches);
@@ -44,12 +37,12 @@ sProbeSet = [];
 sGallerySet = [];
 
 % consider h stripe
-for i = 1:(length(h_vec)-1)
-    p_stripe = probeSet.originalImages(h_vec(i):h_vec(i+1),:,:,:);
-    g_stripe = gallerySet.originalImages(h_vec(i):h_vec(i+1),:,:,:);
-    for j = 1:length(v_vec)-1
-        p_col = p_stripe(:,v_vec(j):v_vec(j+1),:,:);
-        g_col = g_stripe(:,v_vec(j):v_vec(j+1),:,:);
+for i = 1:(length(hSplitVector)-1)
+    p_stripe = probeSet.originalImages(hSplitVector(i):hSplitVector(i+1),:,:,:);
+    g_stripe = gallerySet.originalImages(hSplitVector(i):hSplitVector(i+1),:,:,:);
+    for j = 1:length(vSplitVector)-1
+        p_col = p_stripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
+        g_col = g_stripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
         sProbeSet = cat(5,sProbeSet,p_col);
         sGallerySet = cat(5,sGallerySet,g_col);
     end

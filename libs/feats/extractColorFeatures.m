@@ -7,7 +7,7 @@ function varargout = extractColorFeatures( s_p_set, s_g_set, nbins, nchannels )
 % TODO: CHECK INPUT
 
 % Extract RGB histograms.
-varargout{1} = extractHistograms(s_p_set, nbins, nchannels);
-varargout{2} = extractHistograms(s_g_set, nbins, nchannels);
+varargout{1} = extractHistograms(s_p_set, 'NumBins', nbins, 'NumChannels', nchannels);
+varargout{2} = extractHistograms(s_g_set, 'NumBins', nbins, 'NumChannels', nchannels);
 
 end
