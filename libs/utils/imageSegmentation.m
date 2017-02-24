@@ -3,20 +3,16 @@ function [sProbeSet, sGallerySet] = imageSegmentation(probeSet, gallerySet, vara
 %IMAGESEGMENTATION Segments images in both a probe and a gallery set
 %according to the specified mode.
 
-% TODO: imageSegmentation should be called only on one tipe of image. Write
-% a helper method, instead.
+% TODO: update names; add controls to hpatches e vpatches
 p = inputParser;
-expectedFields = {'originalImages','noisyImages','flipImages', ...
-    'transfImages','rotatedImages'}';
-setValidationFcn = @(x) assert(isstruct(x) && ...
-    isequal(fieldnames(x,'-full'),expectedFields), ...
-    'Structure fields are not valid. Check documentation.');
+setValidationFcn = @(x) assert(isnumeric(x), ...
+                               'It should be a numeric array.');
 addRequired(p, 'probeSet', setValidationFcn);
 addRequired(p, 'gallerySet', setValidationFcn);
 addParameter(p, 'Height', 128, @(x) assert(isinteger(x), ...
-    'Height parameter must be scalar. Check documentation.'));
+                               'It should be an integer value'));
 addParameter(p, 'Width', 48, @(x) assert(isinteger(x), ...
-    'Width parameter must be scalar. Check documentation.'));
+                               'It should be an integer value'));
 addParameter(p, 'HorizontalPatches', 1, @(x) assert(isinteger(x), ...
     'The number of horizontal patches must be an integer value.'));
 addParameter(p, 'VerticalPatches', 1, @(x) assert(isinteger(x), ...
@@ -38,13 +34,13 @@ sGallerySet = [];
 
 % consider h stripe
 for i = 1:(length(hSplitVector)-1)
-    p_stripe = probeSet.originalImages(hSplitVector(i):hSplitVector(i+1),:,:,:);
-    g_stripe = gallerySet.originalImages(hSplitVector(i):hSplitVector(i+1),:,:,:);
+    probeStripe = probeSet(hSplitVector(i):hSplitVector(i+1),:,:,:);
+    galleryStripe = gallerySet(hSplitVector(i):hSplitVector(i+1),:,:,:);
     for j = 1:length(vSplitVector)-1
-        p_col = p_stripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
-        g_col = g_stripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
-        sProbeSet = cat(5,sProbeSet,p_col);
-        sGallerySet = cat(5,sGallerySet,g_col);
+        probeCol = probeStripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
+        galleryCol = galleryStripe(:,vSplitVector(j):vSplitVector(j+1),:,:);
+        sProbeSet = cat(5, sProbeSet, probeCol);
+        sGallerySet = cat(5, sGallerySet, galleryCol);
     end
 end
 

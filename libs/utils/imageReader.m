@@ -24,6 +24,10 @@ addRequired(p, 'Height', @isscalar);
 addRequired(p, 'Width', @isscalar);
 addRequired(p, 'Channels', @isscalar);
 addParameter(p, 'MultiShot', false, @islogical);
+addParameter(p, 'IsHsv', false, @islogical);
+
+%TODO: ADD PARAMETER FOR THE TYPES OF DATA AUGMENTATION; SUPPORT FOR DATA
+%BALANCING
 
 parse(p, datasetDir, imgExt, height, width, channels, varargin{:});
 
@@ -53,25 +57,31 @@ pFlipTensor = pTensor;
 gFlipTensor = gTensor;
 pTransfTensor = pTensor;
 gTransfTensor = gTensor;
-pRotTensor = pTensor;
-gRotTensor = gTensor;
+% TODO: OPTIMIZE SIZES
+%pRotTensor = zeros(p.Results.Height, p.Results.Width*2, p.Results.Channels, imgNumber);
+%gRotTensor = pRotTensor;
+
+isHsv = p.Results.IsHsv;
 
 % Read images and store them in tensors.
 parfor i = 1:imgNumber
-    [pTensor(:,:,:,i), pNoiseTensor(:,:,:,i), pFlipTensor(:,:,:,i), pTransfTensor(:,:,:,i), pRotTensor(:,:,:,i)] = imAugmentedRead(fullfile(pImages(i).folder,pImages(i).name));
-    [gTensor(:,:,:,i), gNoiseTensor(:,:,:,i), gFlipTensor(:,:,:,i), gTransfTensor(:,:,:,i), gRotTensor(:,:,:,i)] = imAugmentedRead(fullfile(gImages(i).folder,gImages(i).name));
+    currPImage = fullfile(pImages(i).folder,pImages(i).name);
+    currGImage = fullfile(gImages(i).folder,gImages(i).name);
+    [pTensor(:,:,:,i), pNoiseTensor(:,:,:,i), pFlipTensor(:,:,:,i), pTransfTensor(:,:,:,i)] = imAugmentedRead(currPImage, 'IsHsv', isHsv);
+    [gTensor(:,:,:,i), gNoiseTensor(:,:,:,i), gFlipTensor(:,:,:,i), gTransfTensor(:,:,:,i)] = imAugmentedRead(currGImage, 'IsHsv', isHsv);
 end
+
 
 % Store tensors in output structs.
 probeSet.originalImages = pTensor;
 probeSet.noisyImages = pNoiseTensor;
 probeSet.flipImages = pFlipTensor;
 probeSet.transfImages = pTransfTensor;
-probeSet.rotatedImages = pRotTensor;
+%probeSet.rotatedImages = pRotTensor;
 gallerySet.originalImages = gTensor;
 gallerySet.noisyImages = gNoiseTensor;
 gallerySet.flipImages = gFlipTensor;
 gallerySet.transfImages = gTransfTensor;
-gallerySet.rotatedImages = gRotTensor;
+%gallerySet.rotatedImages = gRotTensor;
 
 end

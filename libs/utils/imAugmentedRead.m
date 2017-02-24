@@ -1,4 +1,5 @@
-function [i, ni, fi, ti, ri, lbl]  = imAugmentedRead(img, varargin)
+function [i, ni, fi, ti]  = imAugmentedRead(img, varargin)
+% TODO: ADD ROTATION
 %IMAUGMENTEDREAD Read an image, and augment it using label-preserving 
 %transforms.
 %   [I, NI, FI, TI, RI, LBL] = IMAUGMENTEDREAD(IMG, VARARGIN) reads the image
@@ -23,14 +24,21 @@ addParameter(p, 'NoiseType', 'salt & pepper', @(x) ...
 addParameter(p, 'TransformStep', 0.05, @(x) assert(isscalar(x) ...
     && (x > 0) && (x < 1), ...
     'Transform step must be a scalar value between 0 and 1.'));
-addParameter(p, 'RotationMat', eye(3), @(x) assert(ismatrix(x) ...
+addParameter(p, 'RotationMat', ...
+    [1 .05 0; .05 1 0; 0 .05 1], ...
+    @(x) assert(ismatrix(x) ...
     && (size(x,1) == size(x,2)) && (size(x,1) == 3), ...
     'Rotation matrix must be a 3 x 3 matrix'));
+addParameter(p, 'IsHsv', false, @islogical);
 
 parse(p, img, varargin{:});
 
 % Read image.
 i = imread(img);
+% Transform image if needed
+if p.Results.IsHsv
+    i = rgb2hsv(i);
+end
 % Noisy image.
 ni = imnoise(i, p.Results.NoiseType);
 % Horizontally flipped image.
@@ -43,6 +51,6 @@ w_disp = (w-2*w)*randn(1,1) + w;
 ti = imtranslate(i, [h_disp, w_disp]);
 % Rotate image.
 tform = affine2d(p.Results.RotationMat);
-ri = imwarp(i, tform);
+%ri = imwarp(i, tform);
 
 end

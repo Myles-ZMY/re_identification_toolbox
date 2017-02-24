@@ -33,15 +33,27 @@ setup
 imgTensorMat = [resDir '\augmented_' pars.dataset '_' pars.exp_no '.mat'];
 if (pars.save && ~exist(imgTensorMat,'file'))
     [probeSet, gallerySet] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels);
-    save(imgTensorMat, 'probeSet', 'gallerySet');
+    [probeSetHsv, gallerySetHsv] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels, 'IsHsv', true);
+    save(imgTensorMat, 'probeSet', 'gallerySet', 'probeSetHsv', 'gallerySetHsv');
 else
     load(imgTensorMat)
 end
 
-[s_p_set, s_g_set] = imageSegmentation(probeSet, gallerySet);%, pars);
+%[segProbeSet, segGallerySet] = imageSegmentation(probeSet.originalImages, gallerySet.originalImages);%, pars);
+[segProbeSet, segGallerySet] = helperImageSegmentation(probeSet, gallerySet);
+[segProbeSetHsv, segGallerySetHsv] = helperImageSegmentation(probeSetHsv, gallerySetHsv);
 
-[exit1,exit2] = extractColorFeatures(s_p_set, s_g_set, 16, 3);
-[stat1,stat2] = extractStatisticsFromFeatures(exit1,exit2);
+% TODO: REFACTOR WRAPPERS
+[hist1,hist2] = helperExtractColorFeatures(segProbeSet, segGallerySet);
+[hist1Hsv,hist2Hsv] = helperExtractColorFeatures(segProbeSetHsv, segGallerySetHsv);
+
+[stat1,stat2] = helperExtractStatisticsFromFeatures(hist1,hist2);
+[stat1Hsv,stat2Hsv] = helperExtractStatisticsFromFeatures(hist1Hsv,hist2Hsv);
+
+% TODO: SAVE FILES
+
+% TODO: EXTRACT EACH CHANNEL + LABELS
+
 
 % pseudo code: feat_vec = squeeze(stat1(:,i,:,i))';
 % featureClustering(feat_vec)
