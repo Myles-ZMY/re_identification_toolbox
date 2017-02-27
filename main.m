@@ -30,11 +30,10 @@ setup
 % TODO: NORMALIZE IMAGES WHICH MUST BE READ
 
 % Read images and store them in two tensors, i.e. p_set and g_set.
-imgTensorMat = [resDir '\augmented_' pars.dataset '_' pars.exp_no '.mat'];
+imgTensorMat = [resDir '\' pars.dataset '_' pars.exp_no '.mat'];
 if (pars.save && ~exist(imgTensorMat,'file'))
-    [probeSet, gallerySet] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels);
-    [probeSetHsv, gallerySetHsv] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels, 'IsHsv', true);
-    save(imgTensorMat, 'probeSet', 'gallerySet', 'probeSetHsv', 'gallerySetHsv');
+    [probeSet, gallerySet] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels, 'GetHsv', true);
+    save(imgTensorMat, 'probeSet', 'gallerySet');
 else
     load(imgTensorMat)
 end

@@ -4,7 +4,8 @@ function [probeSet, gallerySet] = imageReader(datasetDir, ...
                                                 width, ...
                                                 channels, ...
                                                 varargin)
-%IMAGEREADER Reads images of a person re-identification datasets.
+%IMAGEREADER Reads images from a re-id dataset.
+                                            
 %   [PROBESET, GALLERYSET] = IMAGEREADER(DATASETDIR, IMGEXT, HEIGHT,
 %   WIDTH, CHANNELS, VARARGIN) reads the images with extension IMGEXT
 %   stored in DATASETDIR, which has a fixed structure with 'cam_a' and
@@ -18,18 +19,20 @@ function [probeSet, gallerySet] = imageReader(datasetDir, ...
 
 p = inputParser;
 
-addRequired(p, 'DatasetDir', @ischar);
-addRequired(p, 'ImgExt', @ischar);
-addRequired(p, 'Height', @isscalar);
-addRequired(p, 'Width', @isscalar);
-addRequired(p, 'Channels', @isscalar);
-addParameter(p, 'MultiShot', false, @islogical);
-addParameter(p, 'IsHsv', false, @islogical);
-
-%TODO: ADD PARAMETER FOR THE TYPES OF DATA AUGMENTATION; SUPPORT FOR DATA
-%BALANCING
+charValFcn = @(x) assert(ischar(x), 'It must be a string value.');
+scalarValFcn = @(x) assert(isscalar(x), 'It must be a scalar value.');
+logicalValFcn = @(x) assert(islogical(x), 'It must be a logical value.');
+addRequired(p, 'DatasetDir', charValFcn);
+addRequired(p, 'ImgExt', charValFcn);
+addRequired(p, 'Height', scalarValFcn);
+addRequired(p, 'Width', scalarValFcn);
+addRequired(p, 'Channels', scalarValFcn);
+addParameter(p, 'MultiShot', false, logicalValFcn);
+addParameter(p, 'GetHsv', false, logicalValFcn);
 
 parse(p, datasetDir, imgExt, height, width, channels, varargin{:});
+
+getHsv = p.Results.GetHsv;
 
 % Check if the dataset is multi-shot.
 if(p.Results.MultiShot)
@@ -37,51 +40,66 @@ if(p.Results.MultiShot)
 end
 
 % Create structures for images.
-pImages = dir(fullfile(p.Results.DatasetDir, 'cam_a', p.Results.ImgExt));
-gImages = dir(fullfile(p.Results.DatasetDir, 'cam_b', p.Results.ImgExt));
+probe = dir(fullfile(p.Results.DatasetDir, 'cam_a', p.Results.ImgExt));
+gallery = dir(fullfile(p.Results.DatasetDir, 'cam_b', p.Results.ImgExt));
 
 % Check if the probe set and the gallery set have the same number of
 % images.
-if length(pImages)==length(gImages)
-    imgNumber = length(pImages);
+if length(probe)==length(gallery)
+    imgNumber = length(probe);
 else
     error('The probe set and the gallery set must have the same number of images');
 end
 
 % Create tensors.
-pTensor = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-gTensor = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-pNoiseTensor = pTensor;
-gNoiseTensor = gTensor;
-pFlipTensor = pTensor;
-gFlipTensor = gTensor;
-pTransfTensor = pTensor;
-gTransfTensor = gTensor;
+probeImages = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
+galleryImages = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
+%pNoiseTensor = pTensor;
+%gNoiseTensor = gTensor;
+%pFlipTensor = pTensor;
+%gFlipTensor = gTensor;
+%TransfTensor = pTensor;
+%gTransfTensor = gTensor;
 % TODO: OPTIMIZE SIZES
 %pRotTensor = zeros(p.Results.Height, p.Results.Width*2, p.Results.Channels, imgNumber);
 %gRotTensor = pRotTensor;
 
-isHsv = p.Results.IsHsv;
+
+if getHsv
+    probeImagesHsv = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
+    galleryImagesHsv = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
+end
 
 % Read images and store them in tensors.
 parfor i = 1:imgNumber
-    currPImage = fullfile(pImages(i).folder,pImages(i).name);
-    currGImage = fullfile(gImages(i).folder,gImages(i).name);
-    [pTensor(:,:,:,i), pNoiseTensor(:,:,:,i), pFlipTensor(:,:,:,i), pTransfTensor(:,:,:,i)] = imAugmentedRead(currPImage, 'IsHsv', isHsv);
-    [gTensor(:,:,:,i), gNoiseTensor(:,:,:,i), gFlipTensor(:,:,:,i), gTransfTensor(:,:,:,i)] = imAugmentedRead(currGImage, 'IsHsv', isHsv);
+    currProbe = fullfile(probe(i).folder,probe(i).name);
+    currGallery = fullfile(gallery(i).folder,gallery(i).name);
+    probeImages(:,:,:,i) = imread(currProbe);
+    galleryImages(:,:,:,i) = imread(currGallery);
+    if getHsv
+        probeImagesHsv(:,:,:,i) = rgb2hsv(probeImages(:,:,:,i));
+        galleryImagesHsv(:,:,:,i) = rgb2hsv(galleryImages(:,:,:,i));
+    end
+%    [pTensor(:,:,:,i), pNoiseTensor(:,:,:,i), pFlipTensor(:,:,:,i), pTransfTensor(:,:,:,i)] = imAugmentedRead(currProbe, 'IsHsv', isHsv);
+%    [gTensor(:,:,:,i), gNoiseTensor(:,:,:,i), gFlipTensor(:,:,:,i), gTransfTensor(:,:,:,i)] = imAugmentedRead(currGImage, 'IsHsv', isHsv);
 end
 
-
+probeSet.rgb = probeImages;
+gallerySet.rgb = galleryImages;
+if getHsv
+    probeSet.hsv = probeImagesHsv;
+    gallerySet.hsv = galleryImagesHsv;
+end
 % Store tensors in output structs.
-probeSet.originalImages = pTensor;
-probeSet.noisyImages = pNoiseTensor;
-probeSet.flipImages = pFlipTensor;
-probeSet.transfImages = pTransfTensor;
+%probeSet.originalImages = pTensor;
+%probeSet.noisyImages = pNoiseTensor;
+%probeSet.flipImages = pFlipTensor;
+%probeSet.transfImages = pTransfTensor;
 %probeSet.rotatedImages = pRotTensor;
-gallerySet.originalImages = gTensor;
-gallerySet.noisyImages = gNoiseTensor;
-gallerySet.flipImages = gFlipTensor;
-gallerySet.transfImages = gTransfTensor;
+%gallerySet.originalImages = gTensor;
+%gallerySet.noisyImages = gNoiseTensor;
+%gallerySet.flipImages = gFlipTensor;
+%gallerySet.transfImages = gTransfTensor;
 %gallerySet.rotatedImages = gRotTensor;
 
 end
