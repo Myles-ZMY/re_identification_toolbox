@@ -1,4 +1,4 @@
-function varargout = extractStatisticsFromFeatures(varargin)
+function statStruct = extractStatisticsFromFeatures(featureStruct)
 %EXTRACTSTATISTICSFROMFEATURES Statistical characterization of feature
 %distribution.
 %   TODO: REFACTORING DOCS
@@ -8,14 +8,19 @@ function varargout = extractStatisticsFromFeatures(varargin)
 %   column vector. No assumptions are made on the shape of the
 %   distribution, which can be both non-parametric and parametric.
 
-varargout = cell(length(varargin));
+p = inputParser;
+addRequired(p, 'FeatureStruct', ...
+    @(x) assert(isstruct(x), 'It must be a structure.'));
 
-for i = 1:length(varargin)
-    varargout{i} = cat(1, ...
-        mean(varargin{i}), ...
-        median(varargin{i}), ...
-        std(varargin{i}), ...
-        iqr(varargin{i}));
+parse(p, featureStruct);
+
+fields = fieldnames(p.Results.FeatureStruct);
+
+for i = 1:numel(fields)
+    statStruct.(fields{i}) = cat(1, histMean(featureStruct.(fields{i}), ...
+        median(featureStruct.(fields{i})), ...
+        std(featureStruct.(fields{i})), ...
+        iqr(featureStruct.(fields{i}))));
 end
 
 end

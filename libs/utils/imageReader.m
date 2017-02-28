@@ -1,11 +1,7 @@
-function [probeSet, gallerySet] = imageReader(datasetDir, ...
-                                                imgExt, ....
-                                                height, ....
-                                                width, ...
-                                                channels, ...
-                                                varargin)
+function dataset = imageReader(datasetDir, imgExt, varargin)
 %IMAGEREADER Reads images from a re-id dataset.
-                                            
+
+%   TODO: DOCS                                            
 %   [PROBESET, GALLERYSET] = IMAGEREADER(DATASETDIR, IMGEXT, HEIGHT,
 %   WIDTH, CHANNELS, VARARGIN) reads the images with extension IMGEXT
 %   stored in DATASETDIR, which has a fixed structure with 'cam_a' and
@@ -24,19 +20,18 @@ scalarValFcn = @(x) assert(isscalar(x), 'It must be a scalar value.');
 logicalValFcn = @(x) assert(islogical(x), 'It must be a logical value.');
 addRequired(p, 'DatasetDir', charValFcn);
 addRequired(p, 'ImgExt', charValFcn);
-addRequired(p, 'Height', scalarValFcn);
-addRequired(p, 'Width', scalarValFcn);
-addRequired(p, 'Channels', scalarValFcn);
+% TODO: IMRESIZE
+addParameter(p, 'Height', 128, scalarValFcn);
+addParameter(p, 'Width', 48, scalarValFcn);
+addParameter(p, 'Channels', 3, scalarValFcn);
 addParameter(p, 'MultiShot', false, logicalValFcn);
-addParameter(p, 'GetHsv', false, logicalValFcn);
 
-parse(p, datasetDir, imgExt, height, width, channels, varargin{:});
-
-getHsv = p.Results.GetHsv;
+parse(p, datasetDir, imgExt, varargin{:});
 
 % Check if the dataset is multi-shot.
 if(p.Results.MultiShot)
-    ExtractMultiShotGallery;
+    % TODO
+    extractMultiShotGallery;
 end
 
 % Create structures for images.
@@ -52,54 +47,19 @@ else
 end
 
 % Create tensors.
-probeImages = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-galleryImages = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-%pNoiseTensor = pTensor;
-%gNoiseTensor = gTensor;
-%pFlipTensor = pTensor;
-%gFlipTensor = gTensor;
-%TransfTensor = pTensor;
-%gTransfTensor = gTensor;
-% TODO: OPTIMIZE SIZES
-%pRotTensor = zeros(p.Results.Height, p.Results.Width*2, p.Results.Channels, imgNumber);
-%gRotTensor = pRotTensor;
-
-
-if getHsv
-    probeImagesHsv = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-    galleryImagesHsv = zeros(p.Results.Height, p.Results.Width,p.Results.Channels,imgNumber);
-end
+probeSet = zeros(p.Results.Height, ...
+    p.Results.Width, ...
+    p.Results.Channels, ...
+    imgNumber);
+gallerySet = probeSet;
 
 % Read images and store them in tensors.
 parfor i = 1:imgNumber
-    currProbe = fullfile(probe(i).folder,probe(i).name);
-    currGallery = fullfile(gallery(i).folder,gallery(i).name);
-    probeImages(:,:,:,i) = imread(currProbe);
-    galleryImages(:,:,:,i) = imread(currGallery);
-    if getHsv
-        probeImagesHsv(:,:,:,i) = rgb2hsv(probeImages(:,:,:,i));
-        galleryImagesHsv(:,:,:,i) = rgb2hsv(galleryImages(:,:,:,i));
-    end
-%    [pTensor(:,:,:,i), pNoiseTensor(:,:,:,i), pFlipTensor(:,:,:,i), pTransfTensor(:,:,:,i)] = imAugmentedRead(currProbe, 'IsHsv', isHsv);
-%    [gTensor(:,:,:,i), gNoiseTensor(:,:,:,i), gFlipTensor(:,:,:,i), gTransfTensor(:,:,:,i)] = imAugmentedRead(currGImage, 'IsHsv', isHsv);
+    probeSet(:,:,:,i) = imread(fullfile(probe(i).folder,probe(i).name));
+    gallerySet(:,:,:,i) = imread(fullfile(gallery(i).folder,gallery(i).name));
 end
 
-probeSet.rgb = probeImages;
-gallerySet.rgb = galleryImages;
-if getHsv
-    probeSet.hsv = probeImagesHsv;
-    gallerySet.hsv = galleryImagesHsv;
-end
-% Store tensors in output structs.
-%probeSet.originalImages = pTensor;
-%probeSet.noisyImages = pNoiseTensor;
-%probeSet.flipImages = pFlipTensor;
-%probeSet.transfImages = pTransfTensor;
-%probeSet.rotatedImages = pRotTensor;
-%gallerySet.originalImages = gTensor;
-%gallerySet.noisyImages = gNoiseTensor;
-%gallerySet.flipImages = gFlipTensor;
-%gallerySet.transfImages = gTransfTensor;
-%gallerySet.rotatedImages = gRotTensor;
+dataset.probeSet = probeSet;
+dataset.gallerySet = gallerySet;
 
 end

@@ -24,7 +24,7 @@ if pars.parallel
     parallel_pool = gcp;
 end
 
-%Setup paths
+% Setup paths; TODO: organize in a function - move parpool in setup
 setup
 
 % TODO: NORMALIZE IMAGES WHICH MUST BE READ
@@ -32,22 +32,21 @@ setup
 % Read images and store them in two tensors, i.e. p_set and g_set.
 imgTensorMat = [resDir '\' pars.dataset '_' pars.exp_no '.mat'];
 if (pars.save && ~exist(imgTensorMat,'file'))
-    [probeSet, gallerySet] = imageReader(currentDatasetDir, '*.bmp', pars.height, pars.width, pars.channels, 'GetHsv', true);
-    save(imgTensorMat, 'probeSet', 'gallerySet');
+    dataset = imageReader(currentDatasetDir, '*.bmp');
+    save(imgTensorMat, 'dataset');
 else
     load(imgTensorMat)
 end
 
-%[segProbeSet, segGallerySet] = imageSegmentation(probeSet.originalImages, gallerySet.originalImages);%, pars);
-[segProbeSet, segGallerySet] = helperImageSegmentation(probeSet, gallerySet);
-[segProbeSetHsv, segGallerySetHsv] = helperImageSegmentation(probeSetHsv, gallerySetHsv);
+% TODO: SAVE/LOAD SEGM DATASET
+segmDataset = imageSegmentation(dataset);
 
-% TODO: REFACTOR WRAPPERS
-[hist1,hist2] = helperExtractColorFeatures(segProbeSet, segGallerySet);
-[hist1Hsv,hist2Hsv] = helperExtractColorFeatures(segProbeSetHsv, segGallerySetHsv);
+% TODO: PARAMETRIZE NUMBINS/NUMCHANNELS
+colorFeatures = extractColorFeatures(segmDataset, 'NumBins', 16, 'NumChannels', 3);
 
-[stat1,stat2] = helperExtractStatisticsFromFeatures(hist1,hist2);
-[stat1Hsv,stat2Hsv] = helperExtractStatisticsFromFeatures(hist1Hsv,hist2Hsv);
+statFeatures = extractStatisticsFromFeatures(colorFeatures.histograms);
+%[stat1,stat2] = helperExtractStatisticsFromFeatures(hist1,hist2);
+%[stat1Hsv,stat2Hsv] = helperExtractStatisticsFromFeatures(hist1Hsv,hist2Hsv);
 
 % TODO: SAVE FILES
 
