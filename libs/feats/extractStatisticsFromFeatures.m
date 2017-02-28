@@ -16,11 +16,12 @@ parse(p, featureStruct);
 
 fields = fieldnames(p.Results.FeatureStruct);
 
+% TODO: PARAM HISTMEANS!
 for i = 1:numel(fields)
-    statStruct.(fields{i}) = cat(1, histMean(featureStruct.(fields{i}), ...
+    statStruct.(fields{i}) = cat(1, histMean(featureStruct.(fields{i}),256), ...
         median(featureStruct.(fields{i})), ...
         std(featureStruct.(fields{i})), ...
-        iqr(featureStruct.(fields{i}))));
+        iqr(featureStruct.(fields{i})));
 end
 
 end
