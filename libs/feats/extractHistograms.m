@@ -18,7 +18,7 @@ addParameter(p,'NumChannels', 3, @(x) assert(isscalar(x) && (x > 1) && ...
 parse(p, dataset, varargin{:});
 
 % Check dataset structure.
-if ~helperChkDsetStruct(dataset, {'probeSet','gallerySet'}')
+if ~helperChkDsetStruct(dataset)
     error('Dataset does not have the expected structure.')
 end
 

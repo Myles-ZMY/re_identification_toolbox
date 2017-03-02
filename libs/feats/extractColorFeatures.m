@@ -20,15 +20,32 @@ addParameter(p, 'NumChannels', 3, intValFcn);
 parse(p, dataset, varargin{:});
 
 % Check dataset structure.
-if ~helperChkDsetStruct(dataset, {'probeSet','gallerySet'}')
+if ~helperChkDsetStruct(dataset)
     error('Dataset does not have the expected structure.')
 end
 
-% Histogram.
-colorFeatures.histograms = extractHistograms(dataset, ...
+% RGB histograms.
+colorFeatures.rgbHistograms = extractHistograms(dataset, ...
     'NumBins', p.Results.NumBins, ...
     'NumChannels', p.Results.NumChannels);
 
-% TODO: OTHER COLOR FEATURES
+% Compute HSV datasets (HARDCODED)
+% TODO: PUT INTO A FUNCTION WITH SEVERAL COLOR SPACES
+%fields = fieldnames(dataset, '-full');
+%for i = 1:numel(fields)
+%    inputTensor = dataset.(fields{i});
+%    outputTensor = zeros(size(inputTensor,1), size(inputTensor,2), size(inputTensor,3), size(inputTensor,4));
+%    for j = 1:632
+%       outputTensor(:,:,:,j) = rgb2hsv(inputTensor(:,:,:,j));
+%    end
+%    hsvDataset.(fields{i}) = outputTensor;
+%end
+
+hsvDataset = convertColorSpaceDataset(dataset);
+
+% HSV histograms.
+colorFeatures.hsvHistograms = extractHistograms(hsvDataset, ...
+    'NumBins', p.Results.NumBins, ...
+    'NumChannels', p.Results.NumChannels);
 
 end

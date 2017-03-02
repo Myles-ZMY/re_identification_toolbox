@@ -14,7 +14,7 @@ addParameter(p, 'VerticalPatches', 1, intValFcn);
 parse(p, dataset, varargin{:});
 
 % Check dataset structure.
-if ~helperChkDsetStruct(p.Results.Dataset, {'probeSet','gallerySet'}')
+if ~helperChkDsetStruct(p.Results.Dataset)
     error('Dataset does not have the expected structure.')
 end
 

@@ -44,9 +44,9 @@ segmDataset = imageSegmentation(dataset);
 % TODO: PARAMETRIZE NUMBINS/NUMCHANNELS
 colorFeatures = extractColorFeatures(segmDataset, 'NumBins', 16, 'NumChannels', 3);
 
-statFeatures = extractStatisticsFromFeatures(colorFeatures.histograms);
-%[stat1,stat2] = helperExtractStatisticsFromFeatures(hist1,hist2);
-%[stat1Hsv,stat2Hsv] = helperExtractStatisticsFromFeatures(hist1Hsv,hist2Hsv);
+statFeatures = helperExtractStatisticsFromFeatures(colorFeatures);
+
+%statFeatures = extractStatisticsFromFeatures(colorFeatures.rgbHistograms);
 
 % TODO: SAVE FILES
 
