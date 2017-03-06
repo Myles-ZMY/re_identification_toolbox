@@ -12,4 +12,3 @@ for i = 1:numel(fields)
 end
 
 end
-

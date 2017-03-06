@@ -3,7 +3,7 @@ clearvars; clc; close all hidden;
 
 % Parameters are stored in a struct (pars).
 % TODO: RE-ARRANGE PARAMETERS
-pars.dataset        = 'ViPER'; % Dataset used for the experiment.
+pars.dataset        = 'VIPeR'; % Dataset used for the experiment.
 pars.exp_no         = '001'; % Experiment number.
 pars.normalize      = 1; % Normalize images to the specified height and width.
 pars.height         = 128; % Normalized height of the images.
