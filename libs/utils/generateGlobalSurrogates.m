@@ -1,4 +1,8 @@
-function [noisyDataset, translateDataset, surrogateDataset] = generateGlobalSurrogates(dataset, varargin)
+function [noisyDataset, ...
+    flippedLrDataset, ...
+    flippedUdDataset, ...
+    translateDataset, ...
+    surrogateDataset] = generateGlobalSurrogates(dataset, varargin)
 %GENERATEGLOBALSURROGATES Reads an image, and generates surrogates using
 %label-preserving transforms.
 %   [I, NI, FI, TI, RI, LBL] = IMAUGMENTEDREAD(IMG, VARARGIN) reads the image
@@ -33,37 +37,44 @@ addParameter(p, 'TransformStep', 0.05, ...
 parse(p, dataset, varargin{:});
 
 fields = fieldnames(dataset, '-full');
-tic
+
+[hDisplacement, vDisplacement] = ...
+    getDisplacement(size(dataset.(fields{1})(:,:,:,1),1), ...
+        size(dataset.(fields{1})(:,:,:,1),2), ...
+        p.Results.TransformStep);
+    
+% TODO: PERFORMANCE MAY BE IMPROVED USING TENSORS
+
 for i = 1:numel(fields)
     for j = 1:size(dataset.(fields{i}), 4)
-        noisyDataset.(fields{i})(:,:,:,j) = imnoise(dataset.(fields{i})(:,:,:,j), p.Results.NoiseType);
-        flippedLrDataset.(fields{i})(:,:,:,j) = fliplr(dataset.(fields{i})(:,:,:,j));
-        flippedUdDataset.(fields{i})(:,:,:,j) = fliplr(dataset.(fields{i})(:,:,:,j));
-        h = size(dataset.(fields{i})(:,:,:,j),1)*p.Results.TransformStep;
-        w = size(dataset.(fields{i})(:,:,:,j),2)*p.Results.TransformStep;
-        hDisplacement = (h-2*h)*randn(1,1) + h;
-        wDisplacement = (w-2*w)*randn(1,1) + w;
-        translateDataset.(fields{i})(:,:,:,j) = imtranslate((dataset.(fields{i})(:,:,:,j)), [hDisplacement, wDisplacement]);
-        surrogateDataset.(fields{i})(:,:,:,j) = cascadeFilterSurrogates(dataset.(fields{i})(:,:,:,j));
+        % Noisy dataset.
+        noisyDataset.(fields{i})(:,:,:,j) = ...
+            imnoise(dataset.(fields{i})(:,:,:,j), p.Results.NoiseType);
+        % Flipped datasets.
+        flippedLrDataset.(fields{i})(:,:,:,j) = ...
+            fliplr(dataset.(fields{i})(:,:,:,j));
+        flippedUdDataset.(fields{i})(:,:,:,j) = ...
+            fliplr(dataset.(fields{i})(:,:,:,j));
+        % Translated dataset.
+        %h = size(dataset.(fields{i})(:,:,:,j),1)*p.Results.TransformStep;
+        %w = size(dataset.(fields{i})(:,:,:,j),2)*p.Results.TransformStep;
+        %hDisplacement = (h-2*h)*randn(1,1) + h;
+        %wDisplacement = (w-2*w)*randn(1,1) + w;
+        
+        translateDataset.(fields{i})(:,:,:,j) = ...
+            imtranslate((dataset.(fields{i})(:,:,:,j)), ...
+                [hDisplacement, vDisplacement]);
+            
+        surrogateDataset.(fields{i})(:,:,:,j) = ...
+            cascadeFilterSurrogates(dataset.(fields{i})(:,:,:,j));
     end
 end
-toc
-%transl = imtranslate(dataset, [hDisplacement, wDisplacement]);
-% TODO: move in imremovepadding function
-% Remove zero padding.
-%hR = transl(:,:,1);
-%hG = transl(:,:,2);
-%hB = transl(:,:,3);
-%hR( ~any(hR,2), : ) = [];  %rows
-%hR( :, ~any(hR,1) ) = [];  %columns
-%hG( ~any(hG,2), : ) = [];  %row
-%hG( :, ~any(hG,1) ) = [];  %columns
-%hB( ~any(hB,2), : ) = [];  %rows
-%hB( :, ~any(hB,1) ) = [];  %columns
-%t = cat(3, hR, hG, hB);
 
-%surrogate.translatedImage = t;
-
-%surrogate.filteredImgs = cascadeFilterSurrogates(dataset);
+    function [hDisp, vDisp] = getDisplacement(height, width, step)
+        height = height * step;
+        width = width * step;
+        hDisp = (height - 2 * height) * randn(1,1) + height;
+        vDisp = (width - 2 * width) * randn(1,1) + width;
+    end
 
 end

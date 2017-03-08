@@ -29,7 +29,7 @@ setup
 
 % TODO: NORMALIZE IMAGES WHICH MUST BE READ
 
-% Read images and store them in two tensors, i.e. p_set and g_set.
+%% Read dataset and split it in probe set and gallery set.
 imgTensorMat = [resDir '\' pars.dataset '_' pars.exp_no '.mat'];
 if (pars.save && ~exist(imgTensorMat,'file'))
     dataset = imageReader(currentDatasetDir, '*.bmp');
@@ -38,13 +38,34 @@ else
     load(imgTensorMat)
 end
 
+%% Generate global surrogates.
+%
+surrogateMat = [resDir '\' pars.dataset '_' pars.exp_no '_surrogates.mat'];
+if (pars.save && ~exist(surrogateMat,'file'))
+    [noisyDset, flipLrDset, flipUdDset, transDset, filtDset] = ...
+        generateGlobalSurrogates(dataset);
+    save(surrogateMat, ...
+        'noisyDset', 'flipLrDset', 'flipUdDset', 'transDset', 'filtDset');
+else
+    load(surrogateMat)
+end
+
 % TODO: SAVE/LOAD SEGM DATASET
 segmDataset = imageSegmentation(dataset);
+
+[n,t,s] = generateGlobalSurrogates(segmDataset);
 
 % TODO: PARAMETRIZE NUMBINS/NUMCHANNELS
 colorFeatures = extractColorFeatures(segmDataset, 'NumBins', 16, 'NumChannels', 3);
 
-statFeatures = helperExtractStatisticsFromFeatures(colorFeatures);
+%statFeatures = helperExtractStatisticsFromFeatures(colorFeatures);
+
+colorFeaturesNoisy = extractColorFeatures(n);
+%statFeaturesNoisy = helperExtractStatisticsFromFeatures(coloFeaturesNoisy);
+
+colFeat = [colorFeatures, colorFeaturesNoisy];
+
+statFeatures = helperExtractStatisticsFromFeatures(colFeat);
 
 %statFeatures = extractStatisticsFromFeatures(colorFeatures.rgbHistograms);
 

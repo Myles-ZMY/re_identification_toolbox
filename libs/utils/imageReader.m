@@ -47,15 +47,15 @@ else
 end
 
 % Create tensors.
-probeSet = zeros(p.Results.Height, ...
+probeSet = uint8(zeros(p.Results.Height, ...
     p.Results.Width, ...
     p.Results.Channels, ...
-    imgNumber);
+    imgNumber));
 gallerySet = probeSet;
 
 % Read images and store them in tensors.
 parfor i = 1:imgNumber
-    probeSet(:,:,:,i) = imread(fullfile(probe(i).folder,probe(i).name));
+    probeSet(:,:,:,i) = imread(fullfile(probe(i).folder, probe(i).name));
     gallerySet(:,:,:,i) = imread(fullfile(gallery(i).folder,gallery(i).name));
 end
 
