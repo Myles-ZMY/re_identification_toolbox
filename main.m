@@ -14,8 +14,8 @@ pars.gpu            = 0; % Use GPU
 pars.multi_shot     = 0; % indicates if dataset is multishot
 pars.h_patches      = 6;
 pars.v_patches      = 2;
-pars.nbins          = 16;
-pars.nchannels      = 3;
+pars.nBins          = 16;
+pars.nChannels      = 3;
 pars.deep_learning  = 0; % Indicates wether libs for DL should be downloaded
 pars.save           = true;
 
@@ -50,24 +50,30 @@ else
     load(surrogateMat)
 end
 
+%% Extract global color features
+colorFeatures(1) = extractColorFeatures(dataset, ...
+    'NumBins', pars.nBins, ...
+    'NumChannels', pars.nChannels);
+colorFeatures(2) = extractColorFeatures(noisyDset, ...
+    'NumBins', pars.nBins, ...
+    'NumChannels', pars.nChannels);
+colorFeatures(3) = extractColorFeatures(flipLrDset, ...
+    'NumBins', pars.nBins, ...
+    'NumChannels', pars.nChannels);
+colorFeatures(4) = extractColorFeatures(flipUdDset, ...
+    'NumBins', pars.nBins, ...
+    'NumChannels', pars.nChannels);
+colorFeatures(5) = extractColorFeatures(transDset, ...
+    'NumBins', pars.nBins, ...
+    'NumChannels', pars.nChannels);
+% TODO: DEBUG FILTDSET
+%colorFeatures(6) = extractColorFeatures(filtDset, ...
+%    'NumBins', pars.nBins, ...
+%    'NumChannels', pars.nChannels);
+
+statFeatures = helperExtractStatisticsFromFeatures(colorFeatures);
+
 % TODO: SAVE/LOAD SEGM DATASET
-segmDataset = imageSegmentation(dataset);
-
-[n,t,s] = generateGlobalSurrogates(segmDataset);
-
-% TODO: PARAMETRIZE NUMBINS/NUMCHANNELS
-colorFeatures = extractColorFeatures(segmDataset, 'NumBins', 16, 'NumChannels', 3);
-
-%statFeatures = helperExtractStatisticsFromFeatures(colorFeatures);
-
-colorFeaturesNoisy = extractColorFeatures(n);
-%statFeaturesNoisy = helperExtractStatisticsFromFeatures(coloFeaturesNoisy);
-
-colFeat = [colorFeatures, colorFeaturesNoisy];
-
-statFeatures = helperExtractStatisticsFromFeatures(colFeat);
-
-%statFeatures = extractStatisticsFromFeatures(colorFeatures.rgbHistograms);
 
 % TODO: SAVE FILES
 

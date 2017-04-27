@@ -7,22 +7,22 @@ function statFeatures = helperExtractStatisticsFromFeatures(colorFeatures)
 
 p = inputParser;
 addRequired(p, 'ColorFeatures', ...
-    @(x) assert(isstruct(x) || isnumeric(x), ...
+    @(x) assert(isstruct(x), ...
     'It must be either a structure or an array of structures.'));
 
 parse(p, colorFeatures);
 
-if isstruct(colorFeatures)
+if numel(colorFeatures) == 1
     fields = fieldnames(colorFeatures, '-full');
     for i = 1:numel(fields)
         statFeatures.(fields{i}) = extractStatisticsFromFeatures(colorFeatures.(fields{i}));
     end
-elseif isnumeric(colorFeatures)
+else
     %statFeatures(n)
     for i = 1:numel(colorFeatures)
         fields = fieldnames(colorFeatures(i), '-full');
         for j = 1:numel(fields)
-            statFeatures(i).(fields{j}) = getStatFeatures(colorFeatures(i).(fields{j}));            
+            statFeatures(i).(fields{j}) = extractStatisticsFromFeatures(colorFeatures(i).(fields{j}));            
         end
     end
 end

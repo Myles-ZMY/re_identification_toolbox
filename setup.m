@@ -24,20 +24,6 @@ if ~exist(resDir,'dir')
     mkdir(resDir)
 end
 
-% TODO: parametrize
-if(pars.deep_learning)
-    unzip('https://github.com/vlfeat/matconvnet/archive/master.zip', libsDir);
-    addpath(fullfile(libsDir, 'matconvnet-master', 'matlab'));
-    compileGpu = false;
-    if((gpuDeviceCount > 0) && pars.gpu)
-        g = gpuDevice;
-        if g.computeCapability > 3
-            compileGpu = true;
-        else
-            warning('GPU is not enough');
-        end
-    end
-            
-    vl_compilenn('enableGpu',compileGpu);
-    vl_setupnn;
-end
+imds = imageDatastore(currentDatasetDir, 'FileExtensions', '.bmp', 'IncludeSubfolder', 1);
+labels = categorical(repmat((1:632)',2,1));
+imds.Labels = labels;
